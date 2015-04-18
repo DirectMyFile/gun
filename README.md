@@ -16,4 +16,10 @@ js: JavaScript Compiler
 pkg: Package Manager
 get: Fetch Dependencies
 build: Build Dart Code
+install: Installs a Global Package
+uninstall: Uninstalls a Global Package
+upgrade: Upgrade Dependencies
+downgrade: Downgrade Dependencies
+deps: Display a Dependency Graph
+tool: Runs a Tool
 ```
