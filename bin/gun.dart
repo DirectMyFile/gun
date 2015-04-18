@@ -32,6 +32,30 @@ main(List<String> argv) async {
   } else if (cmd == "build") {
     await takeover("pub", args: ["build"]
       ..addAll(args));
+  } else if (cmd == "install") {
+    if (args.isNotEmpty) {
+      var l = args[0];
+      if (l.contains("://")) {
+        args.removeAt(0);
+        args.addAll(["-sgit", l]);
+      }
+    }
+    await takeover("pub", args: ["global", "activate"]
+      ..addAll(args));
+  } else if (cmd == "uninstall") {
+    await takeover("pub", args: ["global", "deactivate"]
+      ..addAll(args));
+  } else if (cmd == "upgrade") {
+    await takeover("pub", args: ["upgrade"]
+      ..addAll(args));
+  } else if (cmd == "downgrade") {
+    await takeover("pub", args: ["downgrade"]
+      ..addAll(args));
+  } else if (cmd == "deps") {
+    await takeover("pub", args: ["deps"]
+      ..addAll(args));
+  } else if (cmd == "tool") {
+    await takeover("pub", args: ["run"]..addAll(args));
   } else {
     printHelpAndExit(code: 1);
   }
@@ -49,5 +73,11 @@ void printHelpAndExit({int code: 0}) {
   print("pkg: Package Manager");
   print("get: Fetch Dependencies");
   print("build: Build Dart Code");
+  print("install: Installs a Global Package");
+  print("uninstall: Uninstalls a Global Package");
+  print("upgrade: Upgrade Dependencies");
+  print("downgrade: Downgrade Dependencies");
+  print("deps: Display a Dependency Graph");
+  print("tool: Runs a Tool");
   exit(code);
 }
