@@ -128,11 +128,15 @@ takeover(String executable, {
   bool includeParentEnvironment: true,
   bool runInShell: false
 }) async {
+  Map<String, String> env = environment != null ? new Map.from(environment) : {};
+
+  env["TERM"] = "xterm";
+
   BetterProcessResult result = await exec(
     executable,
     args: args,
     workingDirectory: workingDirectory,
-    environment: environment,
+    environment: env,
     includeParentEnvironment: includeParentEnvironment,
     runInShell: runInShell,
     inherit: true

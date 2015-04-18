@@ -1,4 +1,5 @@
 import "dart:async";
+import "dart:convert";
 import "dart:io";
 
 import "package:gun/utils.dart";
@@ -55,7 +56,20 @@ main(List<String> argv) async {
     await takeover("pub", args: ["deps"]
       ..addAll(args));
   } else if (cmd == "tool") {
-    await takeover("pub", args: ["run"]..addAll(args));
+    await takeover("pub", args: ["run"]
+      ..addAll(args));
+  } else if (custom.any((it) => it.name == cmd)) {
+    var c = custom.firstWhere((it) => it.name == cmd);
+    var cl = c.command;
+    if (cl.contains("{}")) {
+      cl = cl.replaceAll("{}", args.join(" "));
+    } else {
+      cl = (cl.endsWith(" ") ? cl : "${cl} ") + args.join(" ");
+    }
+    var split = cmd.split(" ");
+    var exe = split[0];
+    var a = split.skip(1).toList();
+    await takeover(exe, args: a);
   } else {
     printHelpAndExit(code: 1);
   }
@@ -79,5 +93,46 @@ void printHelpAndExit({int code: 0}) {
   print("downgrade: Downgrade Dependencies");
   print("deps: Display a Dependency Graph");
   print("tool: Runs a Tool");
+  if (custom.isNotEmpty) {
+    print("");
+    print("Custom Commands:");
+    for (var c in custom) {
+      print("${c.name}: ${c.description}");
+    }
+  }
   exit(code);
 }
+
+List<CustomCommand> custom = loadCustomCommands();
+
+List<CustomCommand> loadCustomCommands() {
+  var dir = new Directory(joinPath([Platform.environment["HOME"], ".gun", "custom"]));
+  if (!dir.existsSync()) {
+    dir.createSync(recursive: true);
+  }
+
+  var c = [];
+
+  dir.listSync(recursive: true).where((it) => it.path.endsWith(".json")).where((it) => it is File).forEach((File it) {
+    c.add(new CustomCommand.fromJSON(it.path.split(Platform.pathSeparator).last.replaceAll(".json", ""), JSON.decode(it.readAsStringSync())));
+  });
+
+  return c;
+}
+
+String joinPath(List<String> parts) {
+  return parts.join(Platform.pathSeparator);
+}
+
+class CustomCommand {
+  final String name;
+  final String description;
+  final String command;
+
+  CustomCommand(this.name, this.description, this.command);
+
+  factory CustomCommand.fromJSON(String name, json) {
+    return new CustomCommand(json.containsKey("name") ? json["name"] : name, json["description"], json["command"]);
+  }
+}
+
