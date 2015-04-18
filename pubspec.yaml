@@ -1,0 +1,4 @@
+name: gun
+description: Tool for Simplifying Dart Development
+executables:
+  gun: gun
