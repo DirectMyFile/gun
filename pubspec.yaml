@@ -1,4 +1,7 @@
 name: gun
+version: 1.0.0
 description: Tool for Simplifying Dart Development
+author: Kenneth Endfinger <kaendfinger@gmail.com>
+homepage: https://github.com/DirectMyFile/gun
 executables:
   gun: gun
