@@ -47,6 +47,7 @@ Here are a few addons:
 - den
 - stagehand
 - tuneup
+- dartdoc
 
 ### Create an Addon
 

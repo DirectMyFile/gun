@@ -1,0 +1,9 @@
+{
+  "commands": [
+    {
+      "name": "dartdoc",
+      "description": "Generate Documentation",
+      "command": "pub global run dartdoc"
+    }
+  ]
+}

@@ -37,7 +37,7 @@ main(List<String> argv) async {
   } else if (cmd == "install") {
     if (args.isNotEmpty) {
       var l = args[0];
-      if (l.contains("://")) {
+      if (l.contains("://") || (l.contains("@") && l.contains(":"))) {
         args.removeAt(0);
         args.addAll(["-sgit", l]);
       }
@@ -239,7 +239,7 @@ Future<String> installAddon(String name) async {
     await download(name, "${joinPath([addonDir.path, n])}");
     return n;
   }
-  
+
   await download("${REPO_URL}/${name}.json", "${joinPath([addonDir.path, '${name}.json'])}");
 
   return name;
