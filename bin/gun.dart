@@ -225,24 +225,21 @@ const String REPO_URL = "https://raw.githubusercontent.com/DirectMyFile/gun/mast
 
 Future<bool> doesAddonExist(String name) async {
   var url = "${REPO_URL}/${name}.json";
-  try {
-    var uri = Uri.parse(name);
-    url = uri.toString();
-  } catch (e) {
+  if (name.contains("://")) {
+    url = name;
   }
   var response = await http.get(url);
   return response.statusCode == 200;
 }
 
 Future<String> installAddon(String name) async {
-  try {
+  if (name.contains("://")) {
     var uri = Uri.parse(name);
     var n = uri.pathSegments.last.replaceAll(".json", "");
     await download(name, "${joinPath([addonDir.path, n])}");
     return n;
-  } catch (e) {
   }
-
+  
   await download("${REPO_URL}/${name}.json", "${joinPath([addonDir.path, '${name}.json'])}");
 
   return name;
