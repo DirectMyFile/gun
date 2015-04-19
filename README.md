@@ -26,16 +26,6 @@ deps: Display a Dependency Graph
 tool: Runs a Tool
 ```
 
-## Custom Commands
+## Addons
 
-You can add custom commands by making a new JSON file in `${HOME}/.gun/custom` and adding the following content:
-
-```json
-{
-  "name": "my-command",
-  "description": "Do Something Awesome",
-  "command": "pub global run my-command:my-command"
-}
-```
-
-In the `command` field, the text `{}` will be replaced with the arguments of the command if it exists, otherwise it is appended to the end of the command.
+Make a Pull Request for your addon! See [this example](https://github.com/DirectMyFile/gun/blob/master/addons/stagehand.json) for how to make an addon.

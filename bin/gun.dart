@@ -112,7 +112,7 @@ List<AddonCommand> addons = loadAddonCommands();
 Directory addonDir = getAddonDir();
 
 Directory getAddonDir() {
-  var dir = new Directory(joinPath([Platform.environment["HOME"], ".gun", "custom"]));
+  var dir = new Directory(joinPath([Platform.environment["HOME"], ".gun", "addons"]));
   if (!dir.existsSync()) {
     dir.createSync(recursive: true);
   }
@@ -141,9 +141,7 @@ List<AddonCommand> loadAddonCommands() {
         throw new Exception("Invalid Addon at ${it.path}: ${l} is invalid, no name attribute.");
       }
 
-      c.add(new AddonCommand.fromJSON(
-        l
-      ));
+      c.add(new AddonCommand.fromJSON(l));
     }
   });
 
