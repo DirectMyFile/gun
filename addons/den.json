@@ -1,0 +1,9 @@
+{
+  "commands": [
+    {
+      "name": "den",
+      "description": "Manipulate Pubspecs",
+      "command": "pub global run den"
+    }
+  ]
+}
