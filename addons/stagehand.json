@@ -1,5 +1,9 @@
 {
-  "name": "template",
-  "description": "Generate Templates",
-  "command": "pub global run stagehand"
+  "commands": [
+    {
+      "name": "template",
+      "description": "Generate Templates",
+      "command": "pub global run stagehand"
+    }
+  ]
 }

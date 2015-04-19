@@ -125,10 +125,26 @@ List<AddonCommand> loadAddonCommands() {
   var c = [];
 
   dir.listSync(recursive: true).where((it) => it.path.endsWith(".json")).where((it) => it is File).forEach((File it) {
-    c.add(new AddonCommand.fromJSON(
-      it.path.split(Platform.pathSeparator).last.replaceAll(".json", ""),
-      JSON.decode(it.readAsStringSync())
-    ));
+    var json = JSON.decode(it.readAsStringSync());
+    var cmds = json["commands"];
+
+    if (cmds == null) {
+      if (json["command"] != null) {
+        cmds = [json["command"]];
+      } else {
+        throw new Exception("Invalid Addon at '${it.path}': No Commands Specified");
+      }
+    }
+
+    for (var l in cmds) {
+      if (l["name"] == null) {
+        throw new Exception("Invalid Addon at ${it.path}: ${l} is invalid, no name attribute.");
+      }
+
+      c.add(new AddonCommand.fromJSON(
+        l
+      ));
+    }
   });
 
   return c;
@@ -145,8 +161,8 @@ class AddonCommand {
 
   AddonCommand(this.name, this.description, this.command);
 
-  factory AddonCommand.fromJSON(String name, json) {
-    return new AddonCommand(json.containsKey("name") ? json["name"] : name, json["description"], json["command"]);
+  factory AddonCommand.fromJSON(json) {
+    return new AddonCommand(json["name"], json["description"], json["command"]);
   }
 }
 
