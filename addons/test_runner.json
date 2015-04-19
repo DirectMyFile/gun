@@ -1,0 +1,9 @@
+{
+  "commands": [
+    {
+      "name": "test",
+      "description": "Run Tests",
+      "command": "pub global run test_runner"
+    }
+  ]
+}

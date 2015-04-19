@@ -48,6 +48,8 @@ Here are a few addons:
 - stagehand
 - tuneup
 - dartdoc
+- test_runner
+- grinder
 
 ### Create an Addon
 

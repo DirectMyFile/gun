@@ -1,0 +1,14 @@
+{
+  "commands": [
+    {
+      "name": "grind",
+      "description": "Run Grinder",
+      "command": "pub global run grinder:grind"
+    },
+    {
+      "name": "grinder",
+      "description": "Run Grinder",
+      "command": "pub global run grinder:grinder"
+    }
+  ]
+}
