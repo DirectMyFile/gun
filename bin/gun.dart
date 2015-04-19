@@ -197,9 +197,9 @@ handleAddonsCommand(List<String> args) async {
       exit(1);
     }
 
-    await installAddon(args[1]);
+    var name = await installAddon(args[1]);
 
-    print("Addon '${args[1]}' installed.");
+    print("Addon '${name}' installed.");
   } else if (cmd == "uninstall") {
     if (args.length != 2) {
       print("Usage: gun addons uninstall <addon>");
@@ -224,12 +224,28 @@ http.Client client = new http.Client();
 const String REPO_URL = "https://raw.githubusercontent.com/DirectMyFile/gun/master/addons/";
 
 Future<bool> doesAddonExist(String name) async {
-  var response = await http.get("${REPO_URL}/${name}.json");
+  var url = "${REPO_URL}/${name}.json";
+  try {
+    var uri = Uri.parse(name);
+    url = uri.toString();
+  } catch (e) {
+  }
+  var response = await http.get(url);
   return response.statusCode == 200;
 }
 
-Future installAddon(String name) async {
+Future<String> installAddon(String name) async {
+  try {
+    var uri = Uri.parse(name);
+    var n = uri.pathSegments.last.replaceAll(".json", "");
+    await download(name, "${joinPath([addonDir.path, n])}");
+    return n;
+  } catch (e) {
+  }
+
   await download("${REPO_URL}/${name}.json", "${joinPath([addonDir.path, '${name}.json'])}");
+
+  return name;
 }
 
 Future deleteAddon(String name) async {

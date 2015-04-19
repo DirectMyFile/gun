@@ -28,4 +28,26 @@ tool: Runs a Tool
 
 ## Addons
 
-Make a Pull Request for your addon! See [this example](https://github.com/DirectMyFile/gun/blob/master/addons/stagehand.json) for how to make an addon.
+Addons are available for Gun!
+
+Install an Addon:
+```bash
+$ gun addons install stagehand
+```
+
+Uninstall an Addon:
+```bash
+$ gun addons uninstall stagehand
+```
+
+### Available
+
+Here are a few addons:
+
+- den
+- stagehand
+- tuneup
+
+### Create an Addon
+
+Make a Pull Request for your addon to this repository! See [this example](https://github.com/DirectMyFile/gun/blob/master/addons/stagehand.json) for how to make an addon.
