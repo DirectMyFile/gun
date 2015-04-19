@@ -63,13 +63,19 @@ main(List<String> argv) async {
     handleAddonsCommand(args);
   } else if (addons.any((it) => it.name == cmd)) {
     var c = addons.firstWhere((it) => it.name == cmd);
+    String full;
+    if (c.command is List) {
+      c = c.command.join(" ");
+    }
+
     var cl = c.command;
     if (cl.contains("{}")) {
-      cl = cl.replaceAll("{}", args.join(" "));
+      full = cl.replaceAll("{}", args.join(" "));
     } else {
-      cl = (cl.endsWith(" ") ? cl : "${cl} ") + args.join(" ");
+      full = (args.isNotEmpty ? (cl.endsWith(" ") ? cl : "${cl} ") : cl) + args.join(" ");
     }
-    var split = cmd.split(" ");
+
+    var split = full.split(" ");
     var exe = split[0];
     var a = split.skip(1).toList();
     await takeover(exe, args: a);
@@ -155,7 +161,7 @@ String joinPath(List<String> parts) {
 class AddonCommand {
   final String name;
   final String description;
-  final String command;
+  final dynamic command;
 
   AddonCommand(this.name, this.description, this.command);
 
