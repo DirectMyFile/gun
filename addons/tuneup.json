@@ -1,4 +1,5 @@
 {
+  "install_message": "You must install tuneup to use this addon.",
   "commands": [
     {
       "name": "tuneup",

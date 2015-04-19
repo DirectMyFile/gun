@@ -1,4 +1,5 @@
 {
+  "install_message": "You must install stagehand to use this addon.",
   "commands": [
     {
       "name": "template",

@@ -1,4 +1,5 @@
 {
+  "install_message": "You must install grinder to use this addon.",
   "commands": [
     {
       "name": "grind",

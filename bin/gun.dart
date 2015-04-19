@@ -240,7 +240,27 @@ Future<String> installAddon(String name) async {
     return n;
   }
 
-  await download("${REPO_URL}/${name}.json", "${joinPath([addonDir.path, '${name}.json'])}");
+  var path = joinPath([addonDir.path, '${name}.json']);
+
+  await download("${REPO_URL}/${name}.json", path);
+
+  var json = JSON.decode(await new File(path).readAsString());
+
+  if (json["install_message"] != null) {
+    print(json["install_message"]);
+  }
+
+  if (json["install_hook"] != null) {
+    var c = json["install_hook"];
+    var split = c.split(" ");
+    var exe = split[0];
+    var args = split.skip(1).toList();
+    var result = await exec(exe, args: args, inherit: true);
+    if (result.exitCode != 0) {
+      print("Install Hook Failed!");
+      exit(1);
+    }
+  }
 
   return name;
 }

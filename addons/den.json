@@ -1,4 +1,5 @@
 {
+  "install_message": "You must install den to use this addon.",
   "commands": [
     {
       "name": "den",
