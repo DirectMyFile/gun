@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 
+import "package:http/http.dart" as http;
 import "package:gun/utils.dart";
 
 main(List<String> argv) async {
@@ -58,8 +59,10 @@ main(List<String> argv) async {
   } else if (cmd == "tool") {
     await takeover("pub", args: ["run"]
       ..addAll(args));
-  } else if (custom.any((it) => it.name == cmd)) {
-    var c = custom.firstWhere((it) => it.name == cmd);
+  } else if (cmd == "addons") {
+    handleAddonsCommand(args);
+  } else if (addons.any((it) => it.name == cmd)) {
+    var c = addons.firstWhere((it) => it.name == cmd);
     var cl = c.command;
     if (cl.contains("{}")) {
       cl = cl.replaceAll("{}", args.join(" "));
@@ -79,6 +82,7 @@ void printHelpAndExit({int code: 0}) {
   print("Usage: gun <command> [options]");
   print("");
   print("Commands:");
+  print("addons: Manage Addons");
   print("run: Run a Dart Script");
   print("analyze: Analyze Dart Code");
   print("format: Format Dart Code");
@@ -93,28 +97,38 @@ void printHelpAndExit({int code: 0}) {
   print("downgrade: Downgrade Dependencies");
   print("deps: Display a Dependency Graph");
   print("tool: Runs a Tool");
-  if (custom.isNotEmpty) {
+  if (addons.isNotEmpty) {
     print("");
-    print("Custom Commands:");
-    for (var c in custom) {
+    print("Addon Commands:");
+    for (var c in addons) {
       print("${c.name}: ${c.description}");
     }
   }
   exit(code);
 }
 
-List<CustomCommand> custom = loadCustomCommands();
+List<AddonCommand> addons = loadAddonCommands();
 
-List<CustomCommand> loadCustomCommands() {
+Directory addonDir = getAddonDir();
+
+Directory getAddonDir() {
   var dir = new Directory(joinPath([Platform.environment["HOME"], ".gun", "custom"]));
   if (!dir.existsSync()) {
     dir.createSync(recursive: true);
   }
+  return dir;
+}
+
+List<AddonCommand> loadAddonCommands() {
+  var dir = addonDir;
 
   var c = [];
 
   dir.listSync(recursive: true).where((it) => it.path.endsWith(".json")).where((it) => it is File).forEach((File it) {
-    c.add(new CustomCommand.fromJSON(it.path.split(Platform.pathSeparator).last.replaceAll(".json", ""), JSON.decode(it.readAsStringSync())));
+    c.add(new AddonCommand.fromJSON(
+      it.path.split(Platform.pathSeparator).last.replaceAll(".json", ""),
+      JSON.decode(it.readAsStringSync())
+    ));
   });
 
   return c;
@@ -124,15 +138,95 @@ String joinPath(List<String> parts) {
   return parts.join(Platform.pathSeparator);
 }
 
-class CustomCommand {
+class AddonCommand {
   final String name;
   final String description;
   final String command;
 
-  CustomCommand(this.name, this.description, this.command);
+  AddonCommand(this.name, this.description, this.command);
 
-  factory CustomCommand.fromJSON(String name, json) {
-    return new CustomCommand(json.containsKey("name") ? json["name"] : name, json["description"], json["command"]);
+  factory AddonCommand.fromJSON(String name, json) {
+    return new AddonCommand(json.containsKey("name") ? json["name"] : name, json["description"], json["command"]);
   }
 }
 
+handleAddonsCommand(List<String> args) async {
+  void printUsage() {
+    print("Usage: gun addons <command> [options]");
+    print("");
+    print("Commands:");
+    print("install: Install an Addon");
+    print("uninstall: Uninstall an Addon");
+    exit(1);
+  }
+
+  if (args.length == 0) {
+    printUsage();
+  }
+
+  var cmd = args[0];
+
+  if (cmd == "install") {
+    if (args.length != 2) {
+      print("Usage: gun addons install <addon>");
+      exit(1);
+    }
+
+    if (!(await doesAddonExist(args[1]))) {
+      print("Addon '${args[1]}' does not exist.");
+      exit(1);
+    }
+
+    await installAddon(args[1]);
+
+    print("Addon '${args[1]}' installed.");
+  } else if (cmd == "uninstall") {
+    if (args.length != 2) {
+      print("Usage: gun addons uninstall <addon>");
+      exit(1);
+    }
+
+    if (!(await isAddonInstalled(args[1]))) {
+      print("Addon '${args[1]}' is not installed.");
+      exit(1);
+    }
+
+    await deleteAddon(args[1]);
+
+    print("Addon '${args[1]}' uninstalled.");
+  } else {
+    printUsage();
+  }
+}
+
+http.Client client = new http.Client();
+
+const String REPO_URL = "https://raw.githubusercontent.com/DirectMyFile/gun/master/addons/";
+
+Future<bool> doesAddonExist(String name) async {
+  var response = await http.get("${REPO_URL}/${name}.json");
+  return response.statusCode == 200;
+}
+
+Future installAddon(String name) async {
+  await download("${REPO_URL}/${name}.json", "${joinPath([addonDir.path, '${name}.json'])}");
+}
+
+Future deleteAddon(String name) async {
+  var file = new File("${joinPath([addonDir.path, '${name}.json'])}");
+  await file.delete();
+}
+
+bool isAddonInstalled(String name) => new File("${joinPath([addonDir.path, '${name}.json'])}").existsSync();
+
+Future<File> download(String url, String path) async {
+  var file = new File(path);
+  if (!(await file.exists())) await file.create();
+  var stream = file.openWrite();
+  var client = new HttpClient();
+  var request = await client.getUrl(Uri.parse(url));
+  var response = await request.close();
+  await response.pipe(stream);
+  client.close();
+  return file;
+}
