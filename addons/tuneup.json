@@ -1,0 +1,9 @@
+{
+  "commands": [
+    {
+      "name": "tuneup",
+      "description": "Inspect Dart Projects",
+      "command": "pub global run tuneup"
+    }
+  ]
+}
